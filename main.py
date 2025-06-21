@@ -1,24 +1,34 @@
+import os
+import logging
 from fastapi import FastAPI, Request
-import requests
+from telegram import Update, Bot
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Dispatcher
+
+TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=TOKEN)
 
 app = FastAPI()
+application = Application.builder().token(TOKEN).build()
 
-BOT_TOKEN = "7440166734:AAGu2xCPp2690WuU8levE31lQHEDfCi6kck"
+# פקודה התחלתית
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("הבוט של יוסי מוכן לפעולה 🔥")
+
+# כל הודעה אחרת
+async def handle_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("קיבלתי אותך 🔥")
+
+application.add_handler(CommandHandler("start", start))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_msg))
+
+@app.post("/")
+async def handle_update(request: Request):
+    json_data = await request.json()
+    update = Update.de_json(json_data, bot)
+    await application.process_update(update)
+    return {"status": "ok"}
 
 @app.get("/")
 def root():
-    return {"message": "YossBoss bot system is ready!"}
-
-@app.post("/")
-async def receive_update(request: Request):
-    data = await request.json()
-    
-    if "message" in data:
-        chat_id = data["message"]["chat"]["id"]
-        text = data["message"].get("text", "")
-        
-        response_text = "👑 ברוך הבא ליוסבוס!"
-        send_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        requests.post(send_url, json={"chat_id": chat_id, "text": response_text})
-    
-    return {"ok": True}
+    return {"message": "YossBoss bot system is ready!"}

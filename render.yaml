@@ -2,5 +2,8 @@ services:
   - type: web
     name: YossBoss1
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn main:app --host=0.0.0.0 --port=10000"
+    buildCommand: ""
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: BOT_TOKEN
+        value: 7440166734:AAGu2xCPp2690WuU8levE31lQHEDfCi6kck
